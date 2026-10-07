@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SENTINEL - URL Safety & Phishing Detection Tool</title>
+    <!-- Import Modern Google Font (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-base: #0f121b;
+            --card-bg: rgba(30, 36, 51, 0.6);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --neon-purple: #9333ea;
+            --neon-blue: #3b82f6;
+            --neon-cyan: #06b6d4;
+            --neon-yellow: #d9f99d;
+            --safe-green: #10b981;
+            --danger-red: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle at 10% 20%, rgba(46, 20, 89, 0.4) 0%, transparent 40%),
+                        radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.2) 0%, var(--bg-base) 50%);
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem 4rem;
+        }
+
+        /* HEADER SECTION */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3.5rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .shield-logo {
+            font-size: 2.5rem;
+            color: var(--neon-cyan);
+            filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.5));
+        }
+
+        .brand-text h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+        }
+
+        .brand-text p {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .status-badge {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--safe-green);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--safe-green);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--safe-green);
+        }
+
+        .tech-stack {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .tech-stack span { color: var(--text-main); font-weight: 600; }
+
+        /* SEARCH BAR SECTION */
+        .search-wrapper {
+            background: linear-gradient(90deg, var(--neon-purple), var(--neon-blue));
+            padding: 2px;
+            border-radius: 16px;
+            margin-bottom: 3.5rem;
+            box-shadow: 0 0 25px rgba(147, 51, 234, 0.2);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .search-wrapper:focus-within {
+            box-shadow: 0 0 35px rgba(147, 51, 234, 0.4);
+        }
+
+        .search-inner {
+            background: #111522;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            width: 100%;
+        }
+
+        .http-prefix {
+            color: var(--text-main);
+            font-weight: 500;
+            padding: 0 1rem 0 1.2rem;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            white-space: nowrap;
+        }
+
+        form {
+            display: flex;
+            width: 100%;
+            align-items: center;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 1.1rem;
+            padding: 1rem 1.5rem;
+            width: 100%;
+            outline: none;
+        }
+
+        input::placeholder { color: #64748b; }
+
+        button {
+            background: linear-gradient(90deg, var(--neon-yellow), #4ade80, var(--neon-cyan));
+            color: #0f121b;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+            transition: transform 0.2s ease;
+        }
+
+        button:hover { transform: scale(1.02); }
+
+        /* DASHBOARD CARDS */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+
+        .card-header h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Card 1: Diagnostic */
+        .diagnostic-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .diagnostic-main h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+
+        .checklist { list-style: none; }
+
+        .checklist li {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+        
+        .checklist li i { color: rgba(255, 255, 255, 0.2); }
+        .checklist li.active { color: var(--text-main); }
+        .checklist li.active i { color: var(--neon-cyan); }
+
+        /* Card 2: Visual Threat Analytics */
+        .threat-analytics {
+            height: 200px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .center-shield {
+            font-size: 4.5rem;
+            color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .center-shield.safe { color: var(--safe-green); filter: drop-shadow(0 0 15px var(--safe-green)); }
+        .center-shield.phish { color: var(--danger-red); filter: drop-shadow(0 0 15px var(--danger-red)); }
+
+        .result-text { margin-top: 1rem; font-weight: 700; letter-spacing: 1px; }
+
+        /* Card 3: History */
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+        }
+
+        .history-url { font-size: 0.85rem; color: var(--text-muted); }
+
+        .tag {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid;
+            font-weight: 600;
+        }
+
+        .tag.safe { color: var(--safe-green); border-color: var(--safe-green); background: rgba(16, 185, 129, 0.1); }
+        .tag.phish { color: var(--danger-red); border-color: var(--danger-red); background: rgba(239, 68, 68, 0.1); }
+
+        /* FOOTER SECTION */
+        footer {
+            text-align: center;
+            margin-top: auto;
+            padding-top: 3.5rem;
+            padding-bottom: 1rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        footer p {
+            opacity: 0.75;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <i class="fa-solid fa-shield-halved shield-logo"></i>
+            <div class="brand-text">
+                <h1>SENTINEL</h1>
+                <p>URL Safety & Phishing Detection Tool</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="status-badge">
+                <div class="status-dot"></div>
+                System Online
+            </div>
+            <div class="tech-stack">
+                Tech Stack: <span>Python • Flask • ML</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="search-wrapper">
+            <div class="search-inner">
+                <span class="http-prefix">https://</span>
+                <form action="/predict" method="POST">
+                    <input type="text" name="url" placeholder="Enter or paste a URL to analyze..." required value="{{ url_tested if url_tested else '' }}">
+                    <button type="submit">Analyze URL <i class="fa-solid fa-magnifying-glass"></i></button>
+                </form>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Left Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Safety Diagnostic Status</h3>
+                </div>
+                <div class="diagnostic-main">
+                    <h2>{{ 'Analysis Complete' if result else 'Await Input' }}</h2>
+                    <div style="width: 24px; height: 24px; border: 2px solid #334155; border-radius: 50%;"></div>
+                </div>
+                <ul class="checklist">
+                    <li class="{{ 'active' if result else '' }}"><i class="fa-regular fa-circle-check"></i> Checking domain age</li>
+                    <li class="{{ 'active' if result else '' }}"><i class="fa-regular fa-circle-check"></i> Analyzing URL structure</li>
+                    <li class="{{ 'active' if result else '' }}"><i class="fa-regular fa-circle-check"></i> Evaluating ML patterns</li>
+                    <li class="{{ 'active' if result else '' }}"><i class="fa-regular fa-circle-check"></i> Blacklist database lookup</li>
+                </ul>
+            </div>
+
+            <!-- Middle Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Visual Threat Analytics</h3>
+                </div>
+                <div class="threat-analytics">
+                    {% if result %}
+                        {% if result == 'Phishing' %}
+                            <i class="fa-solid fa-shield-virus center-shield phish"></i>
+                            <div class="result-text" style="color: var(--danger-red);">THREAT DETECTED</div>
+                        {% else %}
+                            <i class="fa-solid fa-shield-check center-shield safe"></i>
+                            <div class="result-text" style="color: var(--safe-green);">URL IS SAFE</div>
+                        {% endif %}
+                    {% else %}
+                        <i class="fa-solid fa-shield-halved center-shield"></i>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Right Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Analysis History</h3>
+                </div>
+                <div class="history-item">
+                    <span class="history-url">google.com</span>
+                    <span class="tag safe">Safe</span>
+                </div>
+                <div class="history-item">
+                    <span class="history-url">secure-login-update.com</span>
+                    <span class="tag phish">Phishing</span>
+                </div>
+                <div class="history-item">
+                    <span class="history-url">bank-verification-alert.net</span>
+                    <span class="tag phish">Phishing</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 All Rights Reserved Ali Sultan</p>
+    </footer>
+
+</body>
+</html>
